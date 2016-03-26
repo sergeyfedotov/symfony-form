@@ -334,22 +334,24 @@ class CollectionTypeTest extends \Symfony\Component\Form\Test\TypeTestCase
         $this->assertFalse($child->createView()->vars['prototype']->vars['required'], '"prototype" should not be required');
     }
 
-    public function testPrototypeSetNotRequiredIfParentNotRequiredAndChildRequired()
+    public function testPrototypeOverrideRequiredByEntryOptions()
     {
-        $child = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\CollectionType', array(), array(
-            'entry_type' => 'Symfony\Component\Form\Extension\Core\Type\FileType',
-            'allow_add' => true,
-            'prototype' => true,
-            'prototype_name' => '__test__',
-            'required' => true
-        ));
-        $parent = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\FormType', array(), array(
-            'required' => false,
-        ));
-        $child->setParent($parent);
+      $child = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\CollectionType', array(), array(
+          'entry_type' => 'Symfony\Component\Form\Extension\Core\Type\FileType',
+          'allow_add' => true,
+          'prototype' => true,
+          'prototype_name' => '__test__',
+          'entry_options' => array(
+              'required' => true
+          )
+      ));
+      $parent = $this->factory->create('Symfony\Component\Form\Extension\Core\Type\FormType', array(), array(
+          'required' => false,
+      ));
+      $child->setParent($parent);
 
-        $this->assertFalse($parent->createView()->vars['required'], 'parent is not required');
-        $this->assertFalse($child->createView()->vars['required'], 'child is not required');
-        $this->assertFalse($child->createView()->vars['prototype']->vars['required'], '"prototype" should not be required');
+      $this->assertFalse($parent->createView()->vars['required'], 'parent is not required');
+      $this->assertFalse($child->createView()->vars['required'], 'child is not required');
+      $this->assertTrue($child->createView()->vars['prototype']->vars['required'], '"prototype" should be required');
     }
 }
